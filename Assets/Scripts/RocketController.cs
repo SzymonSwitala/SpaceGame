@@ -1,21 +1,21 @@
-﻿using UnityEngine;
-
+﻿using System.Net.Sockets;
+using UnityEngine;
+using UnityEngine.Events;
 public class RocketController : MonoBehaviour
 {
+
     [Header("Movement Settings")]
     [SerializeField] private float acceleration = 10f;
+    [SerializeField] private bool destroyOffscreen = true;
 
-    [Header("Camera Settings")]
-    [SerializeField] private float attachedZoomValue;
-    [SerializeField] private float detachedZoomValue;
-
-    [Header("References")]
-   // [SerializeField] private CameraController cameraController;
-    [SerializeField] private GameManager gameManager;
+    [Header("Events")]
+    [SerializeField] private UnityEvent onAttachToPlanet;
+    [SerializeField] private UnityEvent onDetachFromPlanet;
+    [SerializeField] private UnityEvent onRocketDestroyed;
 
     private Rigidbody2D rb;
     private FixedJoint2D joint2D;
-    private bool isAttachedToPlanet=true;
+    private bool isAttachedToPlanet=false;
     private float currentSpeed;
 
     void Awake()
@@ -28,6 +28,9 @@ public class RocketController : MonoBehaviour
     {
 
         if (Input.GetKeyDown(KeyCode.Space)) DetachFromPlanet();
+
+        if (CameraManager.Instance.IsOffscreen(transform)&& destroyOffscreen==true) DestroyRocket();
+
 
     }
     private void FixedUpdate()
@@ -63,12 +66,10 @@ public class RocketController : MonoBehaviour
         joint2D.enabled = true;
         joint2D.connectedBody = planet.GetComponent<Rigidbody2D>();
 
-       // cameraController.SetNewTarget(planet.transform);
-       // cameraController.SetNewZoomValue(attachedZoomValue);
+        onAttachToPlanet.Invoke();
         isAttachedToPlanet = true;
 
-        gameManager.ReplacePlanet();
-
+       
     }
 
     private void DetachFromPlanet()
@@ -80,8 +81,7 @@ public class RocketController : MonoBehaviour
 
         ResetRocketPhysics();
 
-       // cameraController.SetNewTarget(transform);
-       // cameraController.SetNewZoomValue(detachedZoomValue);
+        onDetachFromPlanet.Invoke();
         isAttachedToPlanet = false;
     }
 
@@ -98,4 +98,12 @@ public class RocketController : MonoBehaviour
         float angle = Mathf.Atan2(directionToPlanet.y, directionToPlanet.x) * Mathf.Rad2Deg + 90f;
         rb.rotation = angle;
     }
+
+    private void DestroyRocket()
+    {
+        Debug.Log("Rocket Destroyed");
+        onRocketDestroyed.Invoke();
+    }
+
+ 
 }
