@@ -2,22 +2,33 @@
 
 public class RocketController : MonoBehaviour
 {
-
+    [Header("Movement Settings")]
     [SerializeField] private float acceleration = 10f;
 
-    private bool isAttachedToPlanet = true;
-    private float currentSpeed;
+    [Header("Camera Settings")]
+    [SerializeField] private float attachedZoomValue;
+    [SerializeField] private float detachedZoomValue;
+
+    [Header("References")]
+    [SerializeField] private GameObject initialPlanet;
+    [SerializeField] private CameraController cameraController;
 
     private Rigidbody2D rb;
     private FixedJoint2D joint2D;
+    private bool isAttachedToPlanet;
+    private float currentSpeed;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         joint2D = GetComponent<FixedJoint2D>();
     }
+    private void Start()
+    {
+        AttachToPlanet(initialPlanet);
+    }
 
-    void Update()
+    private void Update()
     {
 
         if (Input.GetKeyDown(KeyCode.Space)) DetachFromPlanet();
@@ -25,9 +36,9 @@ public class RocketController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        Movement();
+        HandleMovement();
     }
-    private void Movement()
+    private void HandleMovement()
     {
         if (isAttachedToPlanet == true) return;
 
@@ -39,42 +50,54 @@ public class RocketController : MonoBehaviour
     {
         if (collision.transform.CompareTag("Planet"))
         {
-            AttachToPlanet(collision);
+            GameObject planet = collision.gameObject;
+            AttachToPlanet(planet);
         }
     }
 
-    private void AttachToPlanet(Collision2D planet)
+    private void AttachToPlanet(GameObject planet)
     {
 
         if (isAttachedToPlanet) return;
-
-        rb.angularVelocity = 0f;
-        rb.linearVelocity = Vector2.zero;
-        currentSpeed = 0;
+        ResetRocketPhysics();
         rb.bodyType = RigidbodyType2D.Dynamic;
 
-        Vector2 directionToPlanet = (planet.transform.position - transform.position).normalized;
-        float baseAngle = Mathf.Atan2(directionToPlanet.y, directionToPlanet.x) * Mathf.Rad2Deg;
-        float targetAngle = baseAngle + 90f;
-        rb.rotation = targetAngle;
+        AlignRocketToPlanet(planet);
 
         joint2D.enabled = true;
-        joint2D.connectedBody = planet.rigidbody;
+        joint2D.connectedBody = planet.GetComponent<Rigidbody2D>();
 
+        cameraController.SetNewTarget(planet.transform);
+        cameraController.SetNewZoomValue(attachedZoomValue);
         isAttachedToPlanet = true;
 
     }
 
-    void DetachFromPlanet()
+    private void DetachFromPlanet()
     {
         if (isAttachedToPlanet == false) return;
 
         joint2D.connectedBody = null;
         joint2D.enabled = false;
 
+        ResetRocketPhysics();
+
+        cameraController.SetNewTarget(transform);
+        cameraController.SetNewZoomValue(detachedZoomValue);
+        isAttachedToPlanet = false;
+    }
+
+    private void ResetRocketPhysics()
+    {
         rb.angularVelocity = 0f;
         rb.linearVelocity = Vector2.zero;
+        currentSpeed = 0;
+    }
 
-        isAttachedToPlanet = false;
+    private void AlignRocketToPlanet(GameObject planet)
+    {
+        Vector2 directionToPlanet = (planet.transform.position - transform.position).normalized;
+        float angle = Mathf.Atan2(directionToPlanet.y, directionToPlanet.x) * Mathf.Rad2Deg + 90f;
+        rb.rotation = angle;
     }
 }
