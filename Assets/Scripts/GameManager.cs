@@ -4,13 +4,14 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     [Header("Planets")]
-    [SerializeField] private float yOffset;
-    [SerializeField] float minXPos;
-    [SerializeField] float maxXPos;
-    [SerializeField] float minRotationSpeed;
-    [SerializeField] float maxRotationSpeed;
-    [SerializeField] float minSize;
-    [SerializeField] float maxSize;
+    [SerializeField] private float minYPos;
+    [SerializeField] private float maxYPos;
+    [SerializeField] private float minXPos;
+    [SerializeField] private float maxXPos;
+    [SerializeField] private float minRotationSpeed;
+    [SerializeField] private float maxRotationSpeed;
+    [SerializeField] private float minSize;
+    [SerializeField] private float maxSize;
 
     [Header("Map")]
     [SerializeField] private float mapHorizontalLimit;
@@ -31,27 +32,21 @@ public class GameManager : MonoBehaviour
         currentPlanet = initialPlanet;
         initialPlanet.GetComponent<PlanetController>().SetRotationSpeed(100);
         nextPlanet = SpawnNewPlanet();
-        cameraController.SetTargets(currentPlanet.transform, nextPlanet.transform);
+        cameraController.SetTargets(currentPlanet.transform, nextPlanet.transform, currentPlanet.transform.localScale.x / 2, nextPlanet.transform.localScale.x / 2);
     }
     private void Update()
     {
-        MapBorders();
+        if (IsOffscreen())
+        {
+            GameOver();
+        }
     }
-
-    private void MapBorders()
+    bool IsOffscreen()
     {
-        if (Mathf.Abs(rocket.position.x) > mapHorizontalLimit)
-        {
-            GameOver();
-        }
-        else if (rocket.position.y <= mapBottomLimit)
-        {
-            GameOver();
-        }
-        else if (rocket.position.y >= nextPlanet.transform.position.y + mapTopLimit)
-        {
-            GameOver();
-        }
+        Vector3 viewportPos = cameraController.cam.WorldToViewportPoint(rocket.position);
+        bool isOffScreen = viewportPos.x < 0 || viewportPos.x > 1 ||
+                           viewportPos.y < 0 || viewportPos.y > 1;
+        return isOffScreen;
     }
 
     public void ReplacePlanet()
@@ -60,14 +55,16 @@ public class GameManager : MonoBehaviour
         currentPlanet = nextPlanet;
         nextPlanet = SpawnNewPlanet();
 
-        cameraController.SetTargets(currentPlanet.transform,nextPlanet.transform);
+        cameraController.SetTargets(currentPlanet.transform, nextPlanet.transform, currentPlanet.transform.localScale.x / 2, nextPlanet.transform.localScale.x / 2);
 
     }
 
     private GameObject SpawnNewPlanet()
     {
         float randomXPos = Random.Range(minXPos, maxXPos);
-        Vector2 spawnPos = new Vector2(randomXPos, currentPlanet.transform.position.y + yOffset);
+        float randomYPos = Random.Range(minYPos, maxYPos);
+
+        Vector2 spawnPos = new Vector2(randomXPos, currentPlanet.transform.position.y + randomYPos);
         GameObject newPlanetGO = Instantiate(planetPrefab, spawnPos, Quaternion.identity);
 
         PlanetController newPlanet = newPlanetGO.GetComponent<PlanetController>();

@@ -271,9 +271,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   target2: {fileID: 0}
-  zoomMargin: 1.5
+  zoomMargin: 1.2
   followSmoothness: 0.3
-  zoomSmoothness: 0.1
+  zoomSmoothness: 100
 --- !u!1 &938554676
 GameObject:
   m_ObjectHideFlags: 0
@@ -303,16 +303,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78279f1d4c7953c4b8a2fce7138d4133, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  yOffset: 12
-  minXPos: -5
-  maxXPos: 5
+  minYPos: 10
+  maxYPos: 18
+  minXPos: -10
+  maxXPos: 10
   minRotationSpeed: 150
-  maxRotationSpeed: 200
-  minSize: 2
-  maxSize: 3
-  mapHorizontalLimit: 10
+  maxRotationSpeed: 250
+  minSize: 2.5
+  maxSize: 4
+  mapHorizontalLimit: 15
   mapBottomLimit: -6
-  mapTopLimit: 18.59
+  mapTopLimit: 22
   rocket: {fileID: 1068392072652063926}
   planetPrefab: {fileID: 1159258823683619361, guid: 726cc623845c56d4988999c3bc556389, type: 3}
   initialPlanet: {fileID: 4135785411032048785}
@@ -445,7 +446,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4003212880169238569, guid: a66f79a0e830b3a4ab77953471878b61, type: 3}
       propertyPath: acceleration
-      value: 10
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 4003212880169238569, guid: a66f79a0e830b3a4ab77953471878b61, type: 3}
       propertyPath: initialPlanet
