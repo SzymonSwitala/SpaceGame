@@ -1,36 +1,50 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] private Transform target;
-    [SerializeField] private Vector2 offset;
-    [SerializeField] private float zoomValue;
-    [SerializeField] private float zoomSpeed;
-    private float currentVelocity;
-
+    [SerializeField] private Transform target,target2;
+    public float zoomMargin = 1.5f;
+    public float followSmoothness,zoomSmoothness = 0.3f;
     private Camera cam;
-
+    private Vector3 velocity = Vector3.zero;
     private void Awake()
     {
         cam = GetComponent<Camera>();
     }
     private void LateUpdate()
     {
+        if (target == null|| target2==null) return;
 
-        if (target == null) return;
+        Vector3 middlePoint= CalculateMiddlePoint();
+        FollowTarget(middlePoint);
 
-        Vector3 targetPosition = new Vector3(target.position.x, target.position.y, transform.position.z) + (Vector3)offset;
-        transform.position = targetPosition;
-
-        cam.orthographicSize = Mathf.SmoothDamp(cam.orthographicSize, zoomValue, ref currentVelocity, zoomSpeed * Time.deltaTime);
+        float targetZoom = CalculateRequiredZoom();
+        cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomSmoothness * Time.deltaTime);
     }
-    public void SetNewTarget(Transform newTarget)
+    Vector3 CalculateMiddlePoint()
     {
-        target = newTarget;
+        return (target.position + target2.position) * 0.5f;
     }
-    public void SetNewZoomValue(float value)
+    float CalculateRequiredZoom()
     {
-        zoomValue = value;
+      
+        float distance = Vector3.Distance(target.position, target2.position);
+        float requiredZoom = distance * 0.5f * zoomMargin;
+
+        return requiredZoom;
     }
+    void FollowTarget(Vector3 targetPosition)
+    {
+        targetPosition.z = transform.position.z;
+        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, followSmoothness);
+    }
+
+    public void SetTargets(Transform t1,Transform t2)
+    {
+        target = t1;
+        target2 = t2;
+    }
+
 }

@@ -3,28 +3,35 @@ using UnityEngine;
 
 public class PlanetController : MonoBehaviour
 {
-    [SerializeField] float rotationSpeed = 1f;
-    [SerializeField] bool rotateRight = true;
 
-    Rigidbody2D rb;
+    private Rigidbody2D rb;
+    private float rotationSpeed;
+    private bool rotateRight;
+    
     private void Awake()
     {
-        rb=GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
+   
     private void FixedUpdate()
     {
-        if (rotateRight)
-        {
+        float direction = rotateRight ? 1f : -1f;
+        float newRotation = rb.rotation + direction * rotationSpeed * Time.fixedDeltaTime;
+        rb.MoveRotation(newRotation);
+    }
+  
+    public void SetRotationSpeed(float speed)
+    {
+        rotationSpeed = speed;
+    }
 
-            float newRotation = rb.rotation + rotationSpeed * Time.fixedDeltaTime;
-            rb.MoveRotation(newRotation);
-
-        }
-        else
-        {
-            float newRotation = -rb.rotation + rotationSpeed * Time.fixedDeltaTime;
-            rb.MoveRotation(newRotation);
-        }
+    public void SetPlanetSize(float size)
+    {
        
+        transform.localScale = new Vector2(size, size);
+    }
+    public void SetDirection(bool direction)
+    {
+        rotateRight = direction;
     }
 }

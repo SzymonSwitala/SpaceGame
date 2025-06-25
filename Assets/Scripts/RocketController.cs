@@ -10,22 +10,18 @@ public class RocketController : MonoBehaviour
     [SerializeField] private float detachedZoomValue;
 
     [Header("References")]
-    [SerializeField] private GameObject initialPlanet;
-    [SerializeField] private CameraController cameraController;
+   // [SerializeField] private CameraController cameraController;
+    [SerializeField] private GameManager gameManager;
 
     private Rigidbody2D rb;
     private FixedJoint2D joint2D;
-    private bool isAttachedToPlanet;
+    private bool isAttachedToPlanet=true;
     private float currentSpeed;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         joint2D = GetComponent<FixedJoint2D>();
-    }
-    private void Start()
-    {
-        AttachToPlanet(initialPlanet);
     }
 
     private void Update()
@@ -67,9 +63,11 @@ public class RocketController : MonoBehaviour
         joint2D.enabled = true;
         joint2D.connectedBody = planet.GetComponent<Rigidbody2D>();
 
-        cameraController.SetNewTarget(planet.transform);
-        cameraController.SetNewZoomValue(attachedZoomValue);
+       // cameraController.SetNewTarget(planet.transform);
+       // cameraController.SetNewZoomValue(attachedZoomValue);
         isAttachedToPlanet = true;
+
+        gameManager.ReplacePlanet();
 
     }
 
@@ -82,8 +80,8 @@ public class RocketController : MonoBehaviour
 
         ResetRocketPhysics();
 
-        cameraController.SetNewTarget(transform);
-        cameraController.SetNewZoomValue(detachedZoomValue);
+       // cameraController.SetNewTarget(transform);
+       // cameraController.SetNewZoomValue(detachedZoomValue);
         isAttachedToPlanet = false;
     }
 
